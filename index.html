@@ -3,762 +3,1011 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>你的显卡能玩 GTA VI 吗？- 硬件性能可视化预估</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <title>你的显卡能玩 GTA VI 吗？ - 显卡性能预估天梯</title>
   <style>
+    :root {
+      --bg-page: #f5f6f8;
+      --bg-card: #ffffff;
+      --text-main: #181a1f;
+      --text-sub: #6b7280;
+      --text-muted: #9ca3af;
+      --border-light: #e5e7eb;
+      --green-main: #10b981;
+      --red-line: #ef4444;
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #f6f7f9;
-      color: #1f2329;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 28px 16px 48px;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* 平滑进度条动画 */
-    .bar-fill {
-      transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1), background 0.45s ease;
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
     }
 
-    /* 基准线平滑位移 */
-    .ref-line {
-      transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    /* 顶部标题区 */
+    .header {
+      text-align: center;
+      margin-bottom: 22px;
     }
 
-    /* 自定义滚动条 */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f3f5;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #d0d5dd;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #98a2b3;
+    .header h1 {
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #111827;
+      margin-bottom: 16px;
     }
 
-    /* 选中高亮脉冲 */
-    @keyframes pulseBorder {
-      0%, 100% { box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.35); }
-      50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15); }
-    }
-    .gpu-row-selected {
-      animation: pulseBorder 2.2s infinite;
-      background-color: #f0fdf4 !important;
-      border-color: #86efac !important;
+    /* 顶部三个交互参数胶囊 */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
-    /* 胶囊切换微动效 */
-    .pill-btn {
+    .pill-select-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .pill-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-pill);
+      padding: 9px 36px 9px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
       transition: all 0.2s ease;
     }
-    .pill-btn:active {
-      transform: scale(0.97);
+
+    .pill-select:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .pill-select:focus {
+      outline: none;
+      border-color: #10b981;
+    }
+
+    .pill-select-wrap::after {
+      content: "▾";
+      position: absolute;
+      right: 14px;
+      font-size: 12px;
+      color: #6b7280;
+      pointer-events: none;
+    }
+
+    /* 视图切换与世代筛选栏 */
+    .filter-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #ffffff;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-card);
+      margin-bottom: 18px;
+    }
+
+    .filter-left {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      color: #4b5563;
+      padding: 6px 13px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .tab-btn:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .tab-btn.active {
+      background: #111827;
+      color: #ffffff;
+      border-color: #111827;
+    }
+
+    .tab-btn.series-btn.active {
+      background: #10b981;
+      border-color: #10b981;
+      color: #ffffff;
+    }
+
+    .divider-v {
+      width: 1px;
+      height: 18px;
+      background: #e5e7eb;
+      margin: 0 4px;
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 220px;
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 7px 14px 7px 32px;
+      border-radius: var(--radius-pill);
+      border: 1px solid #e5e7eb;
+      font-size: 13px;
+      background: #f9fafb;
+      color: #111827;
+      transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: #10b981;
+    }
+
+    .search-box::before {
+      content: "🔍";
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    /* 主图表卡片区 */
+    .main-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      border: 1px solid #eef0f3;
+      padding: 26px 24px 22px;
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 860px) {
+      .main-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 左侧横向柱状图区 */
+    .chart-section {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-header-spacer {
+      height: 44px;
+      display: grid;
+      grid-template-columns: 155px 1fr 48px;
+      align-items: end;
+      padding-bottom: 6px;
+    }
+
+    .threshold-labels {
+      position: relative;
+      height: 100%;
+    }
+
+    .threshold-tag {
+      position: absolute;
+      bottom: 2px;
+      transform: translateX(-50%);
+      text-align: center;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    .threshold-tag .fps-num {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .threshold-tag .fps-desc {
+      display: block;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .threshold-tag.red .fps-num {
+      color: #ef4444;
+    }
+
+    .threshold-tag.green .fps-num {
+      color: #10b981;
+    }
+
+    .chart-body {
+      position: relative;
+    }
+
+    /* 垂直参考虚线 */
+    .ref-lines-layer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 155px;
+      right: 48px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ref-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-left: 1.5px dashed;
+    }
+
+    .ref-line.red {
+      border-color: rgba(239, 68, 68, 0.55);
+    }
+
+    .ref-line.green {
+      border-color: rgba(16, 185, 129, 0.65);
+    }
+
+    .gpu-row {
+      display: grid;
+      grid-template-columns: 155px 1fr 48px;
+      align-items: center;
+      padding: 8px 6px;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      transition: background 0.15s ease;
+    }
+
+    .gpu-row:hover {
+      background: #f8fafc;
+    }
+
+    .gpu-row.selected {
+      background: #ecfdf5;
+      box-shadow: inset 0 0 0 1.5px #10b981;
+    }
+
+    .gpu-info {
+      padding-right: 10px;
+    }
+
+    .gpu-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .gpu-badge {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 700;
+    }
+
+    .gpu-vram {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 1px;
+    }
+
+    .bar-track {
+      height: 22px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 20px;
+      border-radius: 0 6px 6px 0;
+      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
+      min-width: 6px;
+    }
+
+    .fps-value {
+      text-align: right;
+      font-size: 13px;
+      font-weight: 800;
+      color: #1f2937;
+      padding-left: 8px;
+      white-space: nowrap;
+    }
+
+    /* X轴刻度 */
+    .x-axis-wrap {
+      display: grid;
+      grid-template-columns: 155px 1fr 48px;
+      margin-top: 8px;
+    }
+
+    .x-axis {
+      border-top: 1px solid #e5e7eb;
+      position: relative;
+      height: 24px;
+    }
+
+    .x-tick {
+      position: absolute;
+      top: 5px;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .x-axis-title {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #10b981;
+      margin-top: 4px;
+    }
+
+    /* 右侧特性与诊断面板 */
+    .sidebar-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .feature-card {
+      background: #fafafa;
+      border: 1px solid #f0f1f4;
+      border-radius: 14px;
+      padding: 14px 12px;
+      text-align: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .feature-icon {
+      font-size: 18px;
+      font-weight: 800;
+      color: #10b981;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .feature-sub {
+      font-size: 11.5px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    /* 点击显卡后的诊断卡片 */
+    .diag-box {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 14px;
+      display: none;
+    }
+
+    .diag-box.active {
+      display: block;
+    }
+
+    .diag-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .diag-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #065f46;
+    }
+
+    .diag-close {
+      background: none;
+      border: none;
+      font-size: 14px;
+      color: #059669;
+      cursor: pointer;
+    }
+
+    .diag-fps {
+      font-size: 22px;
+      font-weight: 800;
+      color: #047857;
+      margin-bottom: 6px;
+    }
+
+    .diag-text {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.55;
+    }
+
+    /* 底部三张提示卡片 */
+    .bottom-notes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .bottom-notes {
+        grid-template-columns: 1fr;
+      }
+      .gpu-row, .chart-header-spacer, .x-axis-wrap {
+        grid-template-columns: 130px 1fr 44px;
+      }
+      .ref-lines-layer {
+        left: 130px;
+        right: 44px;
+      }
+    }
+
+    .note-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid #eef0f3;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .note-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .note-icon.green { background: #10b981; }
+    .note-icon.amber { background: #f59e0b; }
+    .note-icon.teal  { background: #14b8a6; }
+
+    .note-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .note-desc {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 2px;
     }
   </style>
 </head>
-<body class="min-h-screen py-6 px-3 sm:py-10 sm:px-6">
-  <!-- 主容器：还原参考图的居中信息图卡片比例 -->
-  <div id="capture-area" class="max-w-[1040px] mx-auto">
-    
-    <!-- 顶部标题与三个核心交互状态徽章 -->
-    <header class="text-center mb-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200/80 shadow-xs text-[11px] font-medium text-gray-500 mb-3">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>2026 次世代硬件算力推演数据库 · 支持交互切换档位</span>
-      </div>
-
-      <h1 class="text-2xl sm:text-[34px] font-black tracking-tight text-[#1e2229] mb-4">
-        你的显卡能玩 GTA VI 吗？
-      </h1>
-
-      <!-- 三个可点击交互的状态标签徽章（居中横向排列，高度还原参考图） -->
-      <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-5 mb-5">
-        <!-- 1. 分辨率切换徽章 -->
-        <div class="relative inline-block">
-          <button
-            id="btn-resolution"
-            onclick="cycleSetting('resolution')"
-            title="点击切换目标分辨率"
-            class="pill-btn group flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#eef0f3] hover:bg-[#e3e7ec] text-[#4e5969] text-xs sm:text-[13px] font-semibold border border-transparent hover:border-gray-300 shadow-2xs cursor-pointer"
-          >
-            <span id="label-resolution">基于 1080p 估算</span>
-            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-            </svg>
-          </button>
+<body>
+  <div class="container">
+    <!-- 头部标题与三大条件选择器 -->
+    <header class="header">
+      <h1>你的显卡能玩 GTA VI 吗？</h1>
+      <div class="controls-bar">
+        <div class="pill-select-wrap">
+          <select id="resSelect" class="pill-select">
+            <option value="1080p" selected>基于 1080p 估算</option>
+            <option value="2k">基于 2K (2560×1440) 估算</option>
+            <option value="uwqhd">基于 3440×1440 带鱼屏估算</option>
+            <option value="4k">基于 4K (3840×2160) 估算</option>
+          </select>
         </div>
 
-        <!-- 2. 画质预设切换徽章 -->
-        <div class="relative inline-block">
-          <button
-            id="btn-preset"
-            onclick="cycleSetting('preset')"
-            title="点击切换画面质量预设"
-            class="pill-btn group flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#eef0f3] hover:bg-[#e3e7ec] text-[#4e5969] text-xs sm:text-[13px] font-semibold border border-transparent hover:border-gray-300 shadow-2xs cursor-pointer"
-          >
-            <span id="label-preset">低~中画质预设</span>
-            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-            </svg>
-          </button>
+        <div class="pill-select-wrap">
+          <select id="presetSelect" class="pill-select">
+            <option value="low_med" selected>低~中画质预设</option>
+            <option value="high">高画质预设</option>
+            <option value="ultra_rt">极高画质 + 光线追踪</option>
+          </select>
         </div>
 
-        <!-- 3. 超分辨率技术切换徽章 -->
-        <div class="relative inline-block">
-          <button
-            id="btn-upscale"
-            onclick="cycleSetting('upscale')"
-            title="点击切换超分辨率/帧生成模式"
-            class="pill-btn group flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#eef0f3] hover:bg-[#e3e7ec] text-[#4e5969] text-xs sm:text-[13px] font-semibold border border-transparent hover:border-gray-300 shadow-2xs cursor-pointer"
-          >
-            <span id="label-upscale">考虑 DLSS / FSR</span>
-            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- 快捷搜索与高亮控制栏 -->
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl p-2.5 sm:px-4 sm:py-2.5 border border-gray-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-        <!-- 搜索框 -->
-        <div class="relative flex-1 flex items-center">
-          <svg class="w-4 h-4 text-gray-400 absolute left-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
-          </svg>
-          <input
-            id="gpu-search"
-            type="text"
-            placeholder="搜索显卡型号（如 5060 Ti、4070 SUPER、3060、笔记本...）"
-            oninput="handleSearch(this.value)"
-            class="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm bg-gray-50 hover:bg-gray-100/70 focus:bg-white rounded-xl border border-gray-200 focus:border-emerald-500 focus:outline-none transition-colors"
-          />
-          <button
-            id="clear-search-btn"
-            onclick="clearSearch()"
-            class="hidden absolute right-2.5 text-gray-400 hover:text-gray-600 p-0.5"
-            title="清空搜索"
-          >
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- 分类与快捷定位按钮组 -->
-        <div class="flex items-center justify-between sm:justify-end gap-1.5 flex-wrap">
-          <div class="inline-flex rounded-xl bg-gray-100 p-0.5 text-[11px] font-semibold">
-            <button onclick="setFilterGroup('classic')" id="tab-classic" class="px-2.5 py-1 rounded-lg bg-white text-gray-900 shadow-2xs transition-all cursor-pointer">经典甜品榜</button>
-            <button onclick="setFilterGroup('all')" id="tab-all" class="px-2.5 py-1 rounded-lg text-gray-500 hover:text-gray-800 transition-all cursor-pointer">全系天梯(含旗舰)</button>
-            <button onclick="setFilterGroup('laptop')" id="tab-laptop" class="px-2.5 py-1 rounded-lg text-gray-500 hover:text-gray-800 transition-all cursor-pointer">笔记本专区</button>
-          </div>
-
-          <button
-            onclick="copyShareSummary()"
-            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 text-[11px] font-semibold transition-colors cursor-pointer"
-            title="复制当前配置测试结果分享给好友"
-          >
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            <span id="share-btn-text">复制结果</span>
-          </button>
+        <div class="pill-select-wrap">
+          <select id="upscaleSelect" class="pill-select">
+            <option value="quality" selected>考虑 DLSS / FSR</option>
+            <option value="native">原生分辨率（关闭超分）</option>
+            <option value="fg">开启 DLSS / FSR + 帧生成</option>
+          </select>
         </div>
       </div>
     </header>
 
-    <!-- 核心主白底圆角大卡片（双栏布局：左侧主图表 + 右侧特性说明侧边栏） -->
-    <main class="bg-white rounded-[26px] border border-gray-200/75 shadow-[0_6px_30px_rgba(15,23,42,0.04)] p-4 sm:p-7 mb-5 relative">
-      
-      <div class="flex flex-col lg:flex-row gap-6 items-stretch">
-        
-        <!-- 左侧：主横向柱状图区域 -->
-        <div class="flex-1 min-w-0 flex flex-col justify-between">
-          
-          <!-- 顶部基准线标尺说明（对齐图表柱状区） -->
-          <div class="flex items-end mb-2 select-none">
-            <!-- 左侧型号列占位 -->
-            <div class="w-[126px] sm:w-[168px] shrink-0 pr-2 flex items-center">
-              <span class="text-[11px] font-medium text-gray-400">点击任意显卡查看诊断</span>
+    <!-- 视图与世代筛选栏 -->
+    <div class="filter-toolbar">
+      <div class="filter-left">
+        <button class="tab-btn active" data-view="classic">经典12款对比</button>
+        <button class="tab-btn" data-view="all">全系天梯 (含20/30/40/50系)</button>
+        <div class="divider-v"></div>
+        <button class="tab-btn series-btn active" data-series="ALL">全部世代</button>
+        <button class="tab-btn series-btn" data-series="50">50系</button>
+        <button class="tab-btn series-btn" data-series="40">40系</button>
+        <button class="tab-btn series-btn" data-series="30">30系</button>
+        <button class="tab-btn series-btn" data-series="20">20系</button>
+        <button class="tab-btn series-btn" data-series="16">16系</button>
+      </div>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="搜索显卡型号，如 2080 Ti / 4070S..." />
+      </div>
+    </div>
+
+    <!-- 核心天梯图表 + 右侧特性卡片 -->
+    <main class="main-card">
+      <section class="chart-section">
+        <div class="chart-header-spacer">
+          <div></div>
+          <div class="threshold-labels" id="thresholdLabels">
+            <div class="threshold-tag red" id="label30">
+              <span class="fps-num">30 FPS</span>
+              <span class="fps-desc">主机基准线</span>
             </div>
-
-            <!-- 右侧标尺区域 -->
-            <div class="flex-1 relative h-11 pr-12 sm:pr-14">
-              <!-- 30 FPS 主机基准线标签 -->
-              <div id="marker-30" class="ref-line absolute top-0 -translate-x-1/2 text-center whitespace-nowrap" style="left: 35.29%;">
-                <div class="text-[13px] sm:text-[15px] font-extrabold text-[#d94141] leading-tight">30 FPS</div>
-                <div class="text-[10px] sm:text-[11px] font-semibold text-[#d94141]/90">主机基准线</div>
-              </div>
-
-              <!-- 60 FPS PC 流畅线标签 -->
-              <div id="marker-60" class="ref-line absolute top-0 -translate-x-1/2 text-center whitespace-nowrap" style="left: 70.59%;">
-                <div class="text-[13px] sm:text-[15px] font-extrabold text-[#239b56] leading-tight">60 FPS</div>
-                <div class="text-[10px] sm:text-[11px] font-semibold text-[#239b56]/90">PC 流畅线</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 柱状图主体列表容器 -->
-          <div class="relative">
-            <!-- 贯穿全表的两条纵向虚线基准线（位于柱状区域背景层） -->
-            <div class="absolute inset-0 flex pointer-events-none">
-              <div class="w-[126px] sm:w-[168px] shrink-0"></div>
-              <div class="flex-1 relative pr-12 sm:pr-14">
-                <div class="relative w-full h-full">
-                  <div id="line-30" class="ref-line absolute top-0 bottom-0 border-l-[1.5px] border-dashed border-[#e06c6c]/80" style="left: 35.29%;"></div>
-                  <div id="line-60" class="ref-line absolute top-0 bottom-0 border-l-[1.5px] border-dashed border-[#4ab875]/80" style="left: 70.59%;"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 动态渲染的显卡数据行 -->
-            <div id="gpu-list-container" class="relative z-10 space-y-2.5 sm:space-y-3 py-1">
-              <!-- JS 动态填充 -->
+            <div class="threshold-tag green" id="label60">
+              <span class="fps-num">60 FPS</span>
+              <span class="fps-desc">PC 流畅线</span>
             </div>
           </div>
-
-          <!-- 底部 X 轴刻度尺与说明 -->
-          <div class="mt-3 pt-1 flex items-start select-none">
-            <div class="w-[126px] sm:w-[168px] shrink-0"></div>
-            <div class="flex-1 pr-12 sm:pr-14">
-              <div class="relative w-full border-t border-gray-300 h-6" id="x-axis-ticks">
-                <!-- JS 动态生成刻度 -->
-              </div>
-              <div class="text-center mt-1">
-                <span class="text-xs sm:text-[13px] font-bold text-[#239b56] tracking-wide">平均帧率（越高越好）</span>
-              </div>
-            </div>
-          </div>
-
+          <div></div>
         </div>
 
-        <!-- 右侧：特性说明侧边栏（还原参考图右侧 5 个带图标与简短文案的圆角卡片 + 点击显卡后的专属诊断） -->
-        <aside class="w-full lg:w-[172px] shrink-0 flex flex-col justify-between gap-2.5">
-          
-          <!-- 当选中某款显卡时显示的专属迷你诊断卡 -->
-          <div id="selected-gpu-card" class="hidden bg-gradient-to-b from-emerald-50/90 to-white rounded-2xl border border-emerald-200 p-3.5 shadow-2xs transition-all">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-600 text-white">已选显卡诊断</span>
-              <button onclick="clearSelectedGpu()" class="text-gray-400 hover:text-gray-600 text-xs cursor-pointer" title="关闭诊断">✕</button>
-            </div>
-            <div id="diag-name" class="text-xs font-extrabold text-gray-900 leading-snug">RTX 4070 SUPER</div>
-            <div id="diag-vram" class="text-[11px] text-gray-500 mb-2">12GB GDDR6X</div>
-            <div class="flex items-baseline gap-1.5 mb-2">
-              <span id="diag-fps" class="text-2xl font-black text-emerald-600">98</span>
-              <span class="text-xs font-bold text-gray-600">FPS 预估</span>
-            </div>
-            <p id="diag-advice" class="text-[11px] leading-relaxed text-gray-600 bg-white/80 rounded-xl p-2 border border-emerald-100">
-              性能充裕，推荐开启 DLSS 质量档畅玩高画质。
-            </p>
+        <div class="chart-body">
+          <div class="ref-lines-layer">
+            <div class="ref-line red" id="line30"></div>
+            <div class="ref-line green" id="line60"></div>
           </div>
+          <div id="gpuList"></div>
+        </div>
 
-          <!-- 5 个原生信息图特性小卡片（高度还原参考图右侧排版与图标） -->
-          <div id="feature-cards-stack" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-1 gap-2.5 flex-1">
-            
-            <!-- 卡片 1：支持 DLSS / FSR -->
-            <div class="bg-[#fbfcfd] hover:bg-gray-50/90 transition-colors rounded-2xl border border-gray-200/75 px-3 py-3.5 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div class="w-7 h-7 flex items-center justify-center text-[#1ea358] mb-1.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div class="text-xs font-bold text-[#2c313a] leading-tight">支持</div>
-              <div class="text-[11px] font-medium text-gray-400 mt-0.5">DLSS / FSR</div>
-            </div>
-
-            <!-- 卡片 2：更流畅的游戏体验 -->
-            <div class="bg-[#fbfcfd] hover:bg-gray-50/90 transition-colors rounded-2xl border border-gray-200/75 px-3 py-3.5 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div class="w-7 h-7 flex items-center justify-center text-[#1ea358] mb-1.5">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.5l2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L12 2.5z" />
-                </svg>
-              </div>
-              <div class="text-xs font-bold text-[#2c313a] leading-tight">更流畅的</div>
-              <div class="text-[11px] font-medium text-gray-400 mt-0.5">游戏体验</div>
-            </div>
-
-            <!-- 卡片 3：更高的帧率表现 -->
-            <div class="bg-[#fbfcfd] hover:bg-gray-50/90 transition-colors rounded-2xl border border-gray-200/75 px-3 py-3.5 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div class="w-7 h-7 flex items-center justify-center text-[#1ea358] mb-1.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7v9" />
-                </svg>
-              </div>
-              <div class="text-xs font-bold text-[#2c313a] leading-tight">更高的</div>
-              <div class="text-[11px] font-medium text-gray-400 mt-0.5">帧率表现</div>
-            </div>
-
-            <!-- 卡片 4：更低的运行温度 -->
-            <div class="bg-[#fbfcfd] hover:bg-gray-50/90 transition-colors rounded-2xl border border-gray-200/75 px-3 py-3.5 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div class="w-7 h-7 flex items-center justify-center text-[#1ea358] mb-1.5">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                  <circle cx="12" cy="12" r="7" />
-                </svg>
-              </div>
-              <div class="text-xs font-bold text-[#2c313a] leading-tight">更低的</div>
-              <div class="text-[11px] font-medium text-gray-400 mt-0.5">运行温度</div>
-            </div>
-
-            <!-- 卡片 5：更顺畅的游戏过程 -->
-            <div class="col-span-2 sm:col-span-1 bg-[#fbfcfd] hover:bg-gray-50/90 transition-colors rounded-2xl border border-gray-200/75 px-3 py-3.5 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div class="w-7 h-7 flex items-center justify-center text-[#1ea358] mb-1.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6l6 6-6 6" />
-                </svg>
-              </div>
-              <div class="text-xs font-bold text-[#2c313a] leading-tight">更顺畅的</div>
-              <div class="text-[11px] font-medium text-gray-400 mt-0.5">游戏过程</div>
-            </div>
-
+        <div class="x-axis-wrap">
+          <div></div>
+          <div>
+            <div class="x-axis" id="xAxis"></div>
+            <div class="x-axis-title">平均帧率（越高越好）</div>
           </div>
-        </aside>
+          <div></div>
+        </div>
+      </section>
 
-      </div>
+      <!-- 右侧特性卡片 & 点击诊断详情 -->
+      <aside class="sidebar-cards">
+        <div class="diag-box" id="diagBox">
+          <div class="diag-header">
+            <span class="diag-title" id="diagName">RTX 4070 SUPER</span>
+            <button class="diag-close" id="diagClose" title="关闭诊断">✕</button>
+          </div>
+          <div class="diag-fps" id="diagFps">86 FPS</div>
+          <div class="diag-text" id="diagText"></div>
+        </div>
+
+        <div class="feature-card">
+          <span class="feature-icon">✓</span>
+          <div class="feature-title">支持</div>
+          <div class="feature-sub">DLSS / FSR</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">★</span>
+          <div class="feature-title">更流畅的</div>
+          <div class="feature-sub">游戏体验</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">↗</span>
+          <div class="feature-title">更高的</div>
+          <div class="feature-sub">帧率表现</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">○</span>
+          <div class="feature-title">更低的</div>
+          <div class="feature-sub">运行温度</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">→</span>
+          <div class="feature-title">更顺畅的</div>
+          <div class="feature-sub">游戏过程</div>
+        </div>
+      </aside>
     </main>
 
-    <!-- 底部三栏提示卡片（还原参考图底部横向排列的 3 个圆角提示卡） -->
-    <footer class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-      
-      <!-- 提示卡 1：8GB+ 显存 -->
-      <div class="bg-white rounded-2xl border border-gray-200/75 px-4 py-3.5 flex items-center gap-3.5 shadow-2xs">
-        <div class="w-8 h-8 rounded-full bg-[#1fa359] text-white flex items-center justify-center shrink-0 shadow-xs">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
+    <!-- 底部三张显存提示说明卡 -->
+    <footer class="bottom-notes">
+      <div class="note-card">
+        <div class="note-icon green">✓</div>
         <div>
-          <div class="text-[13px] font-extrabold text-[#1f2329]">8GB+ 显存：相对宽裕</div>
-          <div class="text-[11px] text-gray-400 mt-0.5">在1080p下可能更稳定；高分辨率建议12GB+</div>
+          <div class="note-title">8GB+ 显存：相对宽裕</div>
+          <div class="note-desc">在1080p下可能更稳定（2K/带鱼屏建议12GB+）</div>
         </div>
       </div>
-
-      <!-- 提示卡 2：4GB / 6GB 显存 -->
-      <div class="bg-white rounded-2xl border border-gray-200/75 px-4 py-3.5 flex items-center gap-3.5 shadow-2xs">
-        <div class="w-8 h-8 rounded-full bg-[#f5b027] text-white flex items-center justify-center shrink-0 shadow-xs">
-          <span class="text-base font-black leading-none">!</span>
-        </div>
+      <div class="note-card">
+        <div class="note-icon amber">!</div>
         <div>
-          <div class="text-[13px] font-extrabold text-[#1f2329]">4GB / 6GB 显存：需留意</div>
-          <div class="text-[11px] text-gray-400 mt-0.5">可能出现卡顿，适当降低画质与纹理精度</div>
+          <div class="note-title">4GB / 6GB 显存：需留意</div>
+          <div class="note-desc">可能出现卡顿，适当降低纹理与画质</div>
         </div>
       </div>
-
-      <!-- 提示卡 3：全部数据均为预估 -->
-      <div class="bg-white rounded-2xl border border-gray-200/75 px-4 py-3.5 flex items-center gap-3.5 shadow-2xs">
-        <div class="w-8 h-8 rounded-full bg-[#1fa359] text-white flex items-center justify-center shrink-0 shadow-xs">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7v9" />
-          </svg>
-        </div>
+      <div class="note-card">
+        <div class="note-icon teal">↗</div>
         <div>
-          <div class="text-[13px] font-extrabold text-[#1f2329]">全部数据均为预估</div>
-          <div class="text-[11px] text-gray-400 mt-0.5">不是官方配置或实机测试，供装机升级参考</div>
+          <div class="note-title">全部数据均为预估</div>
+          <div class="note-desc">非官方配置或实机测试，点击任意显卡可看诊断</div>
         </div>
       </div>
-
     </footer>
   </div>
 
-  <!-- 轻量消息提示框（替代 alert） -->
-  <div id="toast-box" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
-    <div id="toast-text" class="bg-gray-900/95 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg backdrop-blur-xs">
-      已复制到剪贴板
-    </div>
-  </div>
-
   <script>
-    /**
-     * 显卡性能基准数据库
-     * base1080LowDlss: 对应参考图默认基准（基于 1080p 估算 + 低~中画质预设 + 考虑 DLSS / FSR）
-     * 确保参考图原版 12 款显卡在默认状态下的帧率数值与视觉顺序 100% 精准一致！
-     */
-    const GPU_DATABASE = [
-      // 高端与主流桌面新增型号（在“全系天梯”模式下展示，也可通过搜索随时直达）
-      { id: 'rtx5080', name: 'RTX 5080（桌面）', vram: '16GB GDDR7', vramGB: 16, baseFps: 146, category: 'desktop', isClassic: false, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx5070ti', name: 'RTX 5070 Ti（桌面）', vram: '16GB GDDR7', vramGB: 16, baseFps: 128, category: 'desktop', isClassic: false, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx4070s', name: 'RTX 4070 SUPER（桌面）', vram: '12GB GDDR6X', vramGB: 12, baseFps: 112, category: 'desktop', isClassic: false, arch: 'Ada', fgSupport: true },
-      { id: 'rtx5070', name: 'RTX 5070（桌面）', vram: '12GB GDDR7', vramGB: 12, baseFps: 110, category: 'desktop', isClassic: false, arch: 'Blackwell', fgSupport: true },
-      { id: 'rx9070xt', name: 'RX 9070 XT（桌面）', vram: '16GB GDDR6', vramGB: 16, baseFps: 124, category: 'desktop', isClassic: false, arch: 'RDNA4', fgSupport: true },
-      { id: 'rtx5060ti16', name: 'RTX 5060 Ti（桌面 16G）', vram: '16GB GDDR7', vramGB: 16, baseFps: 94, category: 'desktop', isClassic: false, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx5060ti8', name: 'RTX 5060 Ti（桌面 8G）', vram: '8GB GDDR7', vramGB: 8, baseFps: 91, category: 'desktop', isClassic: false, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx4060ti16', name: 'RTX 4060 Ti（桌面 16G）', vram: '16GB GDDR6', vramGB: 16, baseFps: 81, category: 'desktop', isClassic: false, arch: 'Ada', fgSupport: true },
+    // 显卡数据库（含原图12款经典卡 + 50/40/30/20系完整桌面与笔记本型号）
+    // base1080: 1080p 低~中画质 + 考虑DLSS/FSR 下的基准预估帧率
+    const GPU_DATA = [
+      // 50系
+      { id: "5090", name: "RTX 5090（桌面）", sub: "32GB GDDR7", vram: 32, series: "50", base1080: 158, hasDLSS: true, hasFG: true, classic: false },
+      { id: "5080", name: "RTX 5080（桌面）", sub: "16GB GDDR7", vram: 16, series: "50", base1080: 132, hasDLSS: true, hasFG: true, classic: false },
+      { id: "5070ti", name: "RTX 5070 Ti（桌面）", sub: "16GB GDDR7", vram: 16, series: "50", base1080: 116, hasDLSS: true, hasFG: true, classic: false },
+      { id: "5070", name: "RTX 5070（桌面）", sub: "12GB GDDR7", vram: 12, series: "50", base1080: 102, hasDLSS: true, hasFG: true, classic: false },
+      { id: "5060ti16", name: "RTX 5060 Ti（桌面）", sub: "16GB GDDR7", vram: 16, series: "50", base1080: 91, hasDLSS: true, hasFG: true, classic: false },
+      { id: "5060ti8", name: "RTX 5060 Ti（桌面）", sub: "8GB GDDR7", vram: 8, series: "50", base1080: 88, hasDLSS: true, hasFG: true, classic: false },
+      { id: "5060d", name: "RTX 5060（桌面）", sub: "8GB GDDR7", vram: 8, series: "50", base1080: 78, hasDLSS: true, hasFG: true, classic: true },
+      { id: "5060m", name: "RTX 5060（笔记本）", sub: "8GB GDDR7", vram: 8, series: "50", base1080: 68, hasDLSS: true, hasFG: true, classic: true },
+      { id: "5050d", name: "RTX 5050（桌面）", sub: "8GB GDDR6", vram: 8, series: "50", base1080: 54, hasDLSS: true, hasFG: true, classic: true },
+      { id: "5050m", name: "RTX 5050（笔记本）", sub: "8GB GDDR6", vram: 8, series: "50", base1080: 43, hasDLSS: true, hasFG: true, classic: true },
 
-      // 以下 12 款为参考图原版经典甜品榜（默认展示，数值 1:1 精确还原）
-      { id: 'rtx5060_d', name: 'RTX 5060（桌面）', vram: '8GB GDDR7', vramGB: 8, baseFps: 78, category: 'desktop', isClassic: true, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx5060_m', name: 'RTX 5060（笔记本）', vram: '8GB GDDR7', vramGB: 8, baseFps: 68, category: 'laptop', isClassic: true, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx4060_d', name: 'RTX 4060（桌面）', vram: '8GB GDDR6', vramGB: 8, baseFps: 65, category: 'desktop', isClassic: true, arch: 'Ada', fgSupport: true },
-      { id: 'rtx4060_m', name: 'RTX 4060（笔记本）', vram: '8GB GDDR6', vramGB: 8, baseFps: 58, category: 'laptop', isClassic: true, arch: 'Ada', fgSupport: true },
-      { id: 'rtx5050_d', name: 'RTX 5050（桌面）', vram: '8GB GDDR6', vramGB: 8, baseFps: 54, category: 'desktop', isClassic: true, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx3060_d', name: 'RTX 3060（桌面）', vram: '12GB GDDR6', vramGB: 12, baseFps: 51, category: 'desktop', isClassic: true, arch: 'Ampere', fgSupport: false },
-      { id: 'rtx5050_m', name: 'RTX 5050（笔记本）', vram: '8GB GDDR6', vramGB: 8, baseFps: 43, category: 'laptop', isClassic: true, arch: 'Blackwell', fgSupport: true },
-      { id: 'rtx3060_m', name: 'RTX 3060（笔记本）', vram: '6GB GDDR6', vramGB: 6, baseFps: 33, category: 'laptop', isClassic: true, arch: 'Ampere', fgSupport: false },
-      { id: 'rtx3050_d', name: 'RTX 3050（桌面）', vram: '8GB GDDR6', vramGB: 8, baseFps: 31, category: 'desktop', isClassic: true, arch: 'Ampere', fgSupport: false },
-      { id: 'rtx3050_m', name: 'RTX 3050（笔记本）', vram: '4GB GDDR6', vramGB: 4, baseFps: 22, category: 'laptop', isClassic: true, arch: 'Ampere', fgSupport: false },
-      { id: 'gtx1650_d', name: 'GTX 1650（桌面）', vram: '4GB GDDR5', vramGB: 4, baseFps: 18, category: 'desktop', isClassic: true, arch: 'Turing', fgSupport: false },
-      { id: 'gtx1650_m', name: 'GTX 1650（笔记本）', vram: '4GB GDDR5', vramGB: 4, baseFps: 15, category: 'laptop', isClassic: true, arch: 'Turing', fgSupport: false },
+      // 40系
+      { id: "4090", name: "RTX 4090（桌面）", sub: "24GB GDDR6X", vram: 24, series: "40", base1080: 142, hasDLSS: true, hasFG: true, classic: false },
+      { id: "4080s", name: "RTX 4080 SUPER（桌面）", sub: "16GB GDDR6X", vram: 16, series: "40", base1080: 122, hasDLSS: true, hasFG: true, classic: false },
+      { id: "4070tis", name: "RTX 4070 Ti SUPER（桌面）", sub: "16GB GDDR6X", vram: 16, series: "40", base1080: 112, hasDLSS: true, hasFG: true, classic: false },
+      { id: "4070s", name: "RTX 4070 SUPER（桌面）", sub: "12GB GDDR6X", vram: 12, series: "40", base1080: 103, hasDLSS: true, hasFG: true, classic: false, tag: "主力甜品" },
+      { id: "4070", name: "RTX 4070（桌面）", sub: "12GB GDDR6X", vram: 12, series: "40", base1080: 92, hasDLSS: true, hasFG: true, classic: false },
+      { id: "4060ti16", name: "RTX 4060 Ti（桌面）", sub: "16GB GDDR6", vram: 16, series: "40", base1080: 76, hasDLSS: true, hasFG: true, classic: false },
+      { id: "4060ti8", name: "RTX 4060 Ti（桌面）", sub: "8GB GDDR6", vram: 8, series: "40", base1080: 74, hasDLSS: true, hasFG: true, classic: false },
+      { id: "4060d", name: "RTX 4060（桌面）", sub: "8GB GDDR6", vram: 8, series: "40", base1080: 65, hasDLSS: true, hasFG: true, classic: true },
+      { id: "4060m", name: "RTX 4060（笔记本）", sub: "8GB GDDR6", vram: 8, series: "40", base1080: 58, hasDLSS: true, hasFG: true, classic: true },
 
-      // 补充笔记本主流型号（切换到“笔记本专区”或搜索可见）
-      { id: 'rtx4070_m', name: 'RTX 4070（笔记本）', vram: '8GB GDDR6', vramGB: 8, baseFps: 72, category: 'laptop', isClassic: false, arch: 'Ada', fgSupport: true },
-      { id: 'rtx4080_m', name: 'RTX 4080（笔记本）', vram: '12GB GDDR6', vramGB: 12, baseFps: 98, category: 'laptop', isClassic: false, arch: 'Ada', fgSupport: true }
+      // 30系
+      { id: "3080ti", name: "RTX 3080 Ti（桌面）", sub: "12GB GDDR6X", vram: 12, series: "30", base1080: 94, hasDLSS: true, hasFG: false, classic: false },
+      { id: "3080", name: "RTX 3080（桌面）", sub: "10GB GDDR6X", vram: 10, series: "30", base1080: 86, hasDLSS: true, hasFG: false, classic: false },
+      { id: "3070ti", name: "RTX 3070 Ti（桌面）", sub: "8GB GDDR6X", vram: 8, series: "30", base1080: 74, hasDLSS: true, hasFG: false, classic: false },
+      { id: "3070", name: "RTX 3070（桌面）", sub: "8GB GDDR6", vram: 8, series: "30", base1080: 69, hasDLSS: true, hasFG: false, classic: false },
+      { id: "3060ti", name: "RTX 3060 Ti（桌面）", sub: "8GB GDDR6", vram: 8, series: "30", base1080: 61, hasDLSS: true, hasFG: false, classic: false },
+      { id: "3060d", name: "RTX 3060（桌面）", sub: "12GB GDDR6", vram: 12, series: "30", base1080: 51, hasDLSS: true, hasFG: false, classic: true },
+      { id: "3060m", name: "RTX 3060（笔记本）", sub: "6GB GDDR6", vram: 6, series: "30", base1080: 33, hasDLSS: true, hasFG: false, classic: true },
+      { id: "3050d", name: "RTX 3050（桌面）", sub: "8GB GDDR6", vram: 8, series: "30", base1080: 31, hasDLSS: true, hasFG: false, classic: true },
+      { id: "3050m", name: "RTX 3050（笔记本）", sub: "4GB GDDR6", vram: 4, series: "30", base1080: 22, hasDLSS: true, hasFG: false, classic: true },
+
+      // 20系（新增完整序列）
+      { id: "2080ti", name: "RTX 2080 Ti（桌面）", sub: "11GB GDDR6", vram: 11, series: "20", base1080: 72, hasDLSS: true, hasFG: false, classic: false },
+      { id: "2080s", name: "RTX 2080 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 62, hasDLSS: true, hasFG: false, classic: false },
+      { id: "2080m", name: "RTX 2080（笔记本）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 53, hasDLSS: true, hasFG: false, classic: false },
+      { id: "2070s", name: "RTX 2070 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 55, hasDLSS: true, hasFG: false, classic: false },
+      { id: "2070m", name: "RTX 2070（笔记本）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 45, hasDLSS: true, hasFG: false, classic: false },
+      { id: "2060s", name: "RTX 2060 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 48, hasDLSS: true, hasFG: false, classic: false },
+      { id: "2060d", name: "RTX 2060（桌面）", sub: "6GB GDDR6", vram: 6, series: "20", base1080: 41, hasDLSS: true, hasFG: false, classic: false },
+      { id: "2060m", name: "RTX 2060（笔记本）", sub: "6GB GDDR6", vram: 6, series: "20", base1080: 34, hasDLSS: true, hasFG: false, classic: false },
+
+      // 16系
+      { id: "1660s", name: "GTX 1660 SUPER（桌面）", sub: "6GB GDDR6", vram: 6, series: "16", base1080: 32, hasDLSS: false, hasFG: false, classic: false },
+      { id: "1650d", name: "GTX 1650（桌面）", sub: "4GB GDDR5", vram: 4, series: "16", base1080: 18, hasDLSS: false, hasFG: false, classic: true },
+      { id: "1650m", name: "GTX 1650（笔记本）", sub: "4GB GDDR5", vram: 4, series: "16", base1080: 15, hasDLSS: false, hasFG: false, classic: true }
     ];
 
-    // 交互档位配置
-    const SETTINGS_CONFIG = {
-      resolution: [
-        { key: '1080p', label: '基于 1080p 估算', factor: 1.0, vramPenalty: 0 },
-        { key: '1440p', label: '基于 2K (1440p) 估算', factor: 0.74, vramPenalty: 2 },
-        { key: '3440x1440', label: '基于 3440×1440 带鱼屏', factor: 0.64, vramPenalty: 3 },
-        { key: '4k', label: '基于 4K (2160p) 估算', factor: 0.46, vramPenalty: 5 }
-      ],
-      preset: [
-        { key: 'low_med', label: '低~中画质预设', factor: 1.0, vramReq: 6 },
-        { key: 'high', label: '高画质预设', factor: 0.76, vramReq: 10 },
-        { key: 'ultra_rt', label: '极致 + 光线追踪', factor: 0.54, vramReq: 14 }
-      ],
-      upscale: [
-        { key: 'dlss_q', label: '考虑 DLSS / FSR', factor: 1.0, fgBoost: 1.0 },
-        { key: 'dlss_fg', label: '开启 DLSS/FSR + 帧生成', factor: 1.0, fgBoost: 1.42 },
-        { key: 'native', label: '原生渲染（关闭超分）', factor: 0.72, fgBoost: 1.0 }
-      ]
+    const state = {
+      res: "1080p",
+      preset: "low_med",
+      upscale: "quality",
+      view: "classic",
+      series: "ALL",
+      search: "",
+      selectedId: null
     };
 
-    // 当前应用状态
-    let state = {
-      resolutionIdx: 0,
-      presetIdx: 0,
-      upscaleIdx: 0,
-      filterGroup: 'classic', // 'classic' | 'all' | 'laptop'
-      searchQuery: '',
-      selectedGpuId: null
-    };
+    // 动态帧率估算模型（含分辨率、画质预设、超分/帧生成与显存爆仓惩罚）
+    function calcFps(gpu) {
+      let fps = gpu.base1080;
 
-    /**
-     * 计算单张显卡在当前设置下的预估帧率（含显存溢出瓶颈惩罚）
-     */
-    function calculateFps(gpu) {
-      const res = SETTINGS_CONFIG.resolution[state.resolutionIdx];
-      const pre = SETTINGS_CONFIG.preset[state.presetIdx];
-      const ups = SETTINGS_CONFIG.upscale[state.upscaleIdx];
+      // 1. 分辨率系数
+      const resFactor = {
+        "1080p": 1.0,
+        "2k": 0.76,
+        "uwqhd": 0.67,
+        "4k": 0.49
+      }[state.res];
+      fps *= resFactor;
 
-      let fps = gpu.baseFps * res.factor * pre.factor * ups.factor;
+      // 2. 画质预设系数
+      const presetFactor = {
+        "low_med": 1.0,
+        "high": 0.78,
+        "ultra_rt": 0.56
+      }[state.preset];
+      fps *= presetFactor;
 
-      // 帧生成加成（仅支持现代帧生成架构或 FSR3 通用加成）
-      if (ups.key === 'dlss_fg') {
-        fps *= gpu.fgSupport ? ups.fgBoost : 1.24;
+      // 3. 超分与帧生成系数（base1080 默认已包含 DLSS/FSR 质量档收益）
+      if (state.upscale === "native") {
+        fps *= gpu.hasDLSS ? 0.74 : 0.82;
+      } else if (state.upscale === "fg") {
+        // 40/50系原生DLSS帧生成或20/30系FSR3帧生成
+        fps *= gpu.hasFG ? 1.42 : 1.28;
       }
 
-      // 显存容量瓶颈模拟：如果总需求显存大幅超出物理显存，帧率出现显存溢出衰减
-      const totalVramNeeded = pre.vramReq + res.vramPenalty;
-      if (gpu.vramGB < totalVramNeeded) {
-        const deficit = totalVramNeeded - gpu.vramGB;
-        const bottleneckMultiplier = Math.max(0.45, 1 - deficit * 0.085);
-        fps *= bottleneckMultiplier;
+      // 4. 显存需求与爆显存衰减惩罚
+      let reqVram = 6;
+      if (state.res === "2k") reqVram += 2;
+      if (state.res === "uwqhd") reqVram += 3;
+      if (state.res === "4k") reqVram += 4;
+      if (state.preset === "high") reqVram += 2;
+      if (state.preset === "ultra_rt") reqVram += 4;
+      if (state.upscale === "fg") reqVram += 1;
+
+      if (gpu.vram < reqVram) {
+        const deficit = reqVram - gpu.vram;
+        const penalty = Math.max(0.42, 1 - deficit * 0.13);
+        fps *= penalty;
       }
 
       return Math.max(8, Math.round(fps));
     }
 
-    /**
-     * 根据帧率返回与参考图完全匹配的色彩渐变样式
-     */
+    // 渐变色条匹配原图视觉色阶
     function getBarGradient(fps) {
-      if (fps >= 62) {
-        // 翠绿（60+ FPS）
-        return 'linear-gradient(90deg, #43c651 0%, #2eb843 100%)';
-      } else if (fps >= 54) {
-        // 黄绿过渡（54-61 FPS）
-        return 'linear-gradient(90deg, #8fd438 0%, #68c83c 100%)';
-      } else if (fps >= 46) {
-        // 明黄（46-53 FPS）
-        return 'linear-gradient(90deg, #f9d835 0%, #f5c324 100%)';
-      } else if (fps >= 38) {
-        // 琥珀橙黄（38-45 FPS）
-        return 'linear-gradient(90deg, #fbb633 0%, #f79b26 100%)';
+      if (fps >= 60) {
+        return "linear-gradient(90deg, #34d399 0%, #22c55e 100%)";
+      } else if (fps >= 50) {
+        return "linear-gradient(90deg, #a3e635 0%, #4ade80 100%)";
+      } else if (fps >= 40) {
+        return "linear-gradient(90deg, #facc15 0%, #fbbf24 100%)";
       } else if (fps >= 30) {
-        // 暖橙红（30-37 FPS，刚过主机基准线）
-        return 'linear-gradient(90deg, #f88836 0%, #f4662c 100%)';
+        return "linear-gradient(90deg, #fb923c 0%, #f97316 100%)";
+      } else if (fps >= 20) {
+        return "linear-gradient(90deg, #f87171 0%, #ef4444 100%)";
       } else {
-        // 警戒洋红/深红（<30 FPS）
-        return 'linear-gradient(90deg, #ee4556 0%, #e12d4b 100%)';
+        return "linear-gradient(90deg, #f43f5e 0%, #e11d48 100%)";
       }
     }
 
-    /**
-     * 动态计算 X 轴最大值，确保柱状条既能舒展填满又不超出边界
-     */
-    function getAxisMax(maxFpsInList) {
-      if (maxFpsInList <= 85) return 85;
-      if (maxFpsInList <= 100) return 100;
-      if (maxFpsInList <= 120) return 120;
-      if (maxFpsInList <= 150) return 150;
-      return Math.ceil(maxFpsInList / 20) * 20;
+    // 生成诊断建议文案
+    function getDiagnosis(gpu, fps) {
+      const resMap = {
+        "1080p": "1080p",
+        "2k": "2K (2560×1440)",
+        "uwqhd": "3440×1440 带鱼屏",
+        "4k": "4K"
+      };
+      let vramNote = "";
+      if (gpu.vram <= 6 && (state.res !== "1080p" || state.preset !== "low_med")) {
+        vramNote = `⚠️ 当前 ${gpu.vram}GB 显存已触发明显容量瓶颈，建议将纹理质量调至“低”并保持在 1080p 分辨率。`;
+      } else if (gpu.vram === 8 && (state.res === "uwqhd" || state.res === "4k")) {
+        vramNote = `⚠️ 8GB 显存在 ${resMap[state.res]} 下较为吃紧，建议开启 DLSS/FSR 平衡档并适当降低阴影与人群密度。`;
+      } else {
+        vramNote = `✅ ${gpu.vram}GB 显存容量充足，在当前设置下不容易出现贴图加载卡顿。`;
+      }
+
+      let perfNote = "";
+      if (fps >= 60) {
+        perfNote = `预计平均帧率可达 <b>${fps} FPS</b>，已跨过 PC 60 帧流畅线，键鼠操作跟手度极佳。`;
+      } else if (fps >= 30) {
+        perfNote = `预计平均帧率约 <b>${fps} FPS</b>，高于主机 30 帧基准线，可完整通关剧情；若想冲击 60 帧建议开启更高档位 DLSS/FSR。`;
+      } else {
+        perfNote = `预计平均帧率仅 <b>${fps} FPS</b>，低于主机基准线，建议切回 1080p 并使用低画质 + 性能模式超分。`;
+      }
+
+      return `${perfNote}<br><br>${vramNote}`;
     }
 
-    /**
-     * 渲染主图表、基准线与 X 轴刻度
-     */
-    function renderChart() {
-      const container = document.getElementById('gpu-list-container');
-      const query = state.searchQuery.trim().toLowerCase();
-
+    function render() {
       // 1. 过滤显卡列表
-      let filtered = GPU_DATABASE.filter(gpu => {
-        if (query) {
-          return gpu.name.toLowerCase().includes(query) || gpu.vram.toLowerCase().includes(query);
+      let list = GPU_DATA.filter(g => {
+        if (state.search.trim() !== "") {
+          const kw = state.search.trim().toLowerCase();
+          return g.name.toLowerCase().includes(kw) || g.sub.toLowerCase().includes(kw);
         }
-        if (state.filterGroup === 'classic') return gpu.isClassic;
-        if (state.filterGroup === 'laptop') return gpu.category === 'laptop';
-        return true; // 'all'
+        if (state.series !== "ALL") {
+          return g.series === state.series;
+        }
+        if (state.view === "classic") {
+          return g.classic;
+        }
+        return true;
       });
 
-      // 计算每张卡当前帧率并按从高到低排序
-      const items = filtered
-        .map(gpu => ({ ...gpu, currentFps: calculateFps(gpu) }))
-        .sort((a, b) => b.currentFps - a.currentFps);
+      // 计算当前条件下的帧率并按帧率降序排列
+      const computed = list.map(g => ({ ...g, fps: calcFps(g) }))
+                           .sort((a, b) => b.fps - a.fps);
 
-      // 空搜索兜底
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="py-14 text-center text-gray-400">
-            <div class="text-sm font-semibold text-gray-500 mb-1">未找到匹配的显卡型号</div>
-            <div class="text-xs">试试搜索 “4070”、“5060 Ti”、“3060” 或点击“全系天梯”查看全部型号</div>
-          </div>
-        `;
+      // 动态计算 X 轴最大值（默认经典模式为 85，确保 30 和 60 刻度比例还原原图）
+      const maxFpsInList = computed.length ? Math.max(...computed.map(i => i.fps)) : 80;
+      const axisMax = (state.view === "classic" && state.series === "ALL" && state.res === "1080p" && state.preset === "low_med" && state.upscale === "quality" && !state.search)
+        ? 85
+        : Math.max(85, Math.ceil((maxFpsInList + 10) / 20) * 20);
+
+      // 2. 更新 30 FPS / 60 FPS 参考虚线位置
+      const pct30 = (30 / axisMax) * 100;
+      const pct60 = (60 / axisMax) * 100;
+      document.getElementById("line30").style.left = pct30 + "%";
+      document.getElementById("label30").style.left = pct30 + "%";
+      document.getElementById("line60").style.left = pct60 + "%";
+      document.getElementById("label60").style.left = pct60 + "%";
+
+      // 3. 渲染 X 轴刻度
+      const xAxis = document.getElementById("xAxis");
+      xAxis.innerHTML = "";
+      const step = axisMax <= 100 ? 20 : (axisMax <= 160 ? 40 : 50);
+      for (let v = 0; v <= axisMax; v += step) {
+        const tick = document.createElement("span");
+        tick.className = "x-tick";
+        tick.style.left = (v / axisMax) * 100 + "%";
+        tick.textContent = v;
+        xAxis.appendChild(tick);
+      }
+
+      // 4. 渲染显卡柱状图行
+      const gpuListEl = document.getElementById("gpuList");
+      gpuListEl.innerHTML = "";
+
+      if (computed.length === 0) {
+        gpuListEl.innerHTML = `<div style="padding:36px;text-align:center;color:#9ca3af;font-size:14px;">未找到匹配的显卡型号，请尝试清空搜索词或切换世代筛选。</div>`;
         return;
       }
 
-      // 2. 动态调整 X 轴最大刻度与两条基准线百分比位置
-      const highestFps = Math.max(...items.map(i => i.currentFps));
-      const axisMax = getAxisMax(highestFps);
+      computed.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "gpu-row" + (state.selectedId === item.id ? " selected" : "");
+        const widthPct = Math.min(100, (item.fps / axisMax) * 100);
 
-      const pos30 = Math.min(96, (30 / axisMax) * 100);
-      const pos60 = Math.min(96, (60 / axisMax) * 100);
-
-      ['marker-30', 'line-30'].forEach(id => {
-        document.getElementById(id).style.left = `${pos30}%`;
-      });
-      ['marker-60', 'line-60'].forEach(id => {
-        document.getElementById(id).style.left = `${pos60}%`;
-      });
-
-      // 3. 渲染 X 轴刻度
-      renderXAxis(axisMax);
-
-      // 4. 渲染每一行显卡柱状条
-      container.innerHTML = items.map(gpu => {
-        const widthPct = Math.min(100, Math.max(4, (gpu.currentFps / axisMax) * 100));
-        const gradient = getBarGradient(gpu.currentFps);
-        const isSelected = state.selectedGpuId === gpu.id;
-
-        return `
-          <div
-            onclick="selectGpu('${gpu.id}')"
-            class="group flex items-center rounded-xl px-1.5 py-1 -mx-1.5 border border-transparent hover:bg-gray-50/90 hover:border-gray-200/70 transition-all cursor-pointer ${isSelected ? 'gpu-row-selected' : ''}"
-          >
-            <!-- 左侧显卡型号与显存小字 -->
-            <div class="w-[126px] sm:w-[168px] shrink-0 pr-2.5 leading-tight">
-              <div class="text-[12px] sm:text-[13.5px] font-extrabold text-[#1f2329] group-hover:text-emerald-700 transition-colors truncate" title="${gpu.name}">
-                ${gpu.name}
-              </div>
-              <div class="text-[10px] sm:text-[11px] font-medium text-gray-400 mt-0.5">
-                ${gpu.vram}
-              </div>
+        row.innerHTML = `
+          <div class="gpu-info">
+            <div class="gpu-name">
+              <span>${item.name}</span>
+              ${item.tag ? `<span class="gpu-badge">${item.tag}</span>` : ""}
             </div>
-
-            <!-- 中间圆角渐变压条 + 右侧帧率数字 -->
-            <div class="flex-1 flex items-center pr-12 sm:pr-14 relative">
-              <div class="w-full flex items-center">
-                <div
-                  class="bar-fill h-[18px] sm:h-[21px] rounded-[6px] shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]"
-                  style="width: ${widthPct}%; background: ${gradient};"
-                ></div>
-                <span class="ml-2 text-[12px] sm:text-[13.5px] font-extrabold text-[#1f2329] whitespace-nowrap tabular-nums">
-                  ${gpu.currentFps} FPS
-                </span>
-              </div>
-            </div>
+            <div class="gpu-vram">${item.sub}</div>
           </div>
-        `;
-      }).join('');
-
-      // 如果有已选显卡，同步更新右侧诊断卡里的最新帧率
-      if (state.selectedGpuId) {
-        updateDiagnosisCard(state.selectedGpuId);
-      }
-    }
-
-    /**
-     * 渲染底部带小竖线的 X 轴刻度
-     */
-    function renderXAxis(axisMax) {
-      const axisEl = document.getElementById('x-axis-ticks');
-      let ticks = [0, 20, 40, 60, 80];
-      if (axisMax === 100) ticks = [0, 20, 40, 60, 80, 100];
-      else if (axisMax === 120) ticks = [0, 30, 60, 90, 120];
-      else if (axisMax >= 150) ticks = [0, 30, 60, 90, 120, axisMax];
-
-      axisEl.innerHTML = ticks.map(val => {
-        const leftPct = (val / axisMax) * 100;
-        return `
-          <div class="absolute top-0 -translate-x-1/2 flex flex-col items-center" style="left: ${leftPct}%;">
-            <div class="w-[1px] h-1.5 bg-gray-400"></div>
-            <span class="text-[11px] font-medium text-gray-400 mt-0.5 tabular-nums">${val}</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${widthPct}%; background:${getBarGradient(item.fps)};"></div>
           </div>
+          <div class="fps-value">${item.fps} FPS</div>
         `;
-      }).join('');
-    }
 
-    /**
-     * 循环切换顶部的三个核心设置胶囊
-     */
-    function cycleSetting(type) {
-      if (type === 'resolution') {
-        state.resolutionIdx = (state.resolutionIdx + 1) % SETTINGS_CONFIG.resolution.length;
-        document.getElementById('label-resolution').textContent = SETTINGS_CONFIG.resolution[state.resolutionIdx].label;
-      } else if (type === 'preset') {
-        state.presetIdx = (state.presetIdx + 1) % SETTINGS_CONFIG.preset.length;
-        document.getElementById('label-preset').textContent = SETTINGS_CONFIG.preset[state.presetIdx].label;
-      } else if (type === 'upscale') {
-        state.upscaleIdx = (state.upscaleIdx + 1) % SETTINGS_CONFIG.upscale.length;
-        document.getElementById('label-upscale').textContent = SETTINGS_CONFIG.upscale[state.upscaleIdx].label;
-      }
-      renderChart();
-    }
+        row.addEventListener("click", () => {
+          state.selectedId = item.id;
+          render();
+        });
 
-    /**
-     * 切换顶部榜单分类标签
-     */
-    function setFilterGroup(group) {
-      state.filterGroup = group;
-      ['classic', 'all', 'laptop'].forEach(g => {
-        const btn = document.getElementById(`tab-${g}`);
-        if (g === group) {
-          btn.className = 'px-2.5 py-1 rounded-lg bg-white text-gray-900 shadow-2xs transition-all cursor-pointer';
-        } else {
-          btn.className = 'px-2.5 py-1 rounded-lg text-gray-500 hover:text-gray-800 transition-all cursor-pointer';
-        }
+        gpuListEl.appendChild(row);
       });
-      renderChart();
-    }
 
-    /**
-     * 搜索框过滤
-     */
-    function handleSearch(val) {
-      state.searchQuery = val;
-      const clearBtn = document.getElementById('clear-search-btn');
-      if (val.trim().length > 0) {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-      }
-      renderChart();
-    }
-
-    function clearSearch() {
-      const input = document.getElementById('gpu-search');
-      input.value = '';
-      handleSearch('');
-    }
-
-    /**
-     * 选中某款显卡并在右侧展示专属诊断建议
-     */
-    function selectGpu(gpuId) {
-      state.selectedGpuId = gpuId;
-      updateDiagnosisCard(gpuId);
-      renderChart();
-    }
-
-    function clearSelectedGpu() {
-      state.selectedGpuId = null;
-      document.getElementById('selected-gpu-card').classList.add('hidden');
-      renderChart();
-    }
-
-    function updateDiagnosisCard(gpuId) {
-      const gpu = GPU_DATABASE.find(g => g.id === gpuId);
-      if (!gpu) return;
-
-      const fps = calculateFps(gpu);
-      const res = SETTINGS_CONFIG.resolution[state.resolutionIdx];
-      const card = document.getElementById('selected-gpu-card');
-      card.classList.remove('hidden');
-
-      document.getElementById('diag-name').textContent = gpu.name;
-      document.getElementById('diag-vram').textContent = `${gpu.vram} · ${gpu.arch} 架构`;
-
-      const fpsEl = document.getElementById('diag-fps');
-      fpsEl.textContent = fps;
-      fpsEl.className = `text-2xl font-black ${fps >= 60 ? 'text-emerald-600' : fps >= 30 ? 'text-amber-500' : 'text-rose-600'}`;
-
-      let advice = '';
-      if (fps >= 60) {
-        advice = `当前【${res.label.replace('基于 ', '').replace(' 估算', '')}】下已突破 60 FPS PC 流畅线，画面丝滑，可放心调高纹理与视距。`;
-      } else if (fps >= 30) {
-        if (gpu.vramGB <= 6) {
-          advice = `帧率达到主机 30 FPS 基准线，但 ${gpu.vramGB}GB 显存偏紧，建议将纹理质量设为“中”防止爆显存卡顿。`;
-        } else {
-          advice = `稳过 30 FPS 主机基准线！若想冲刺 60 帧流畅体验，建议开启 DLSS/FSR 性能档或适当降低阴影特效。`;
+      // 5. 更新右侧选中诊断框
+      const diagBox = document.getElementById("diagBox");
+      if (state.selectedId) {
+        const target = GPU_DATA.find(g => g.id === state.selectedId);
+        if (target) {
+          const fps = calcFps(target);
+          document.getElementById("diagName").textContent = target.name;
+          document.getElementById("diagFps").textContent = `${fps} FPS`;
+          document.getElementById("diagText").innerHTML = getDiagnosis(target, fps);
+          diagBox.classList.add("active");
         }
       } else {
-        advice = `当前设置下低于 30 FPS 主机基准线（${gpu.vramGB}GB 显存压力较大），建议切回 1080p 低画质并开启超分辨率。`;
+        diagBox.classList.remove("active");
       }
-
-      document.getElementById('diag-advice').textContent = advice;
     }
 
-    /**
-     * 一键复制当前配置测试结果（兼容 iFrame 环境）
-     */
-    function copyShareSummary() {
-      const res = SETTINGS_CONFIG.resolution[state.resolutionIdx].label;
-      const pre = SETTINGS_CONFIG.preset[state.presetIdx].label;
-      const ups = SETTINGS_CONFIG.upscale[state.upscaleIdx].label;
-
-      let targetGpu = GPU_DATABASE.find(g => g.id === state.selectedGpuId) || GPU_DATABASE.find(g => g.id === 'rtx4070s');
-      const fps = calculateFps(targetGpu);
-
-      const shareText = `【GTA VI 显卡性能预估】在「${res} / ${pre} / ${ups}」设置下，${targetGpu.name}（${targetGpu.vram}）预估平均帧率为 ${fps} FPS（主机基准 30 FPS / PC 流畅 60 FPS）。`;
-
-      const textarea = document.createElement('textarea');
-      textarea.value = shareText;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        showToast('已复制当前测试结论，可直接粘贴发送！');
-      } catch (err) {
-        showToast('复制失败，请手动截图分享');
-      }
-      document.body.removeChild(textarea);
-    }
-
-    function showToast(msg) {
-      const box = document.getElementById('toast-box');
-      const text = document.getElementById('toast-text');
-      text.textContent = msg;
-      box.classList.remove('opacity-0');
-      box.classList.add('opacity-100');
-      setTimeout(() => {
-        box.classList.remove('opacity-100');
-        box.classList.add('opacity-0');
-      }, 2400);
-    }
-
-    // 初始化首次渲染
-    window.addEventListener('DOMContentLoaded', () => {
-      renderChart();
+    // 绑定下拉框事件
+    document.getElementById("resSelect").addEventListener("change", e => {
+      state.res = e.target.value;
+      render();
     });
+    document.getElementById("presetSelect").addEventListener("change", e => {
+      state.preset = e.target.value;
+      render();
+    });
+    document.getElementById("upscaleSelect").addEventListener("change", e => {
+      state.upscale = e.target.value;
+      render();
+    });
+
+    // 绑定视图切换按钮
+    document.querySelectorAll(".tab-btn[data-view]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn[data-view]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.view = btn.dataset.view;
+        state.series = "ALL";
+        document.querySelectorAll(".series-btn").forEach(b => b.classList.toggle("active", b.dataset.series === "ALL"));
+        render();
+      });
+    });
+
+    // 绑定世代筛选按钮
+    document.querySelectorAll(".series-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".series-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.series = btn.dataset.series;
+        if (state.series !== "ALL") {
+          state.view = "all";
+          document.querySelectorAll(".tab-btn[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === "all"));
+        }
+        render();
+      });
+    });
+
+    // 搜索框
+    document.getElementById("searchInput").addEventListener("input", e => {
+      state.search = e.target.value;
+      render();
+    });
+
+    // 关闭诊断卡片
+    document.getElementById("diagClose").addEventListener("click", () => {
+      state.selectedId = null;
+      render();
+    });
+
+    // 初始渲染
+    render();
   </script>
 </body>
 </html>
