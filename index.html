@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>你的显卡能玩 GTA VI 吗？ - 显卡性能预估天梯</title>
+  <title>你的显卡能玩 GTA VI 吗？ - N卡 / A卡全系性能预估天梯</title>
   <style>
     :root {
       --bg-page: #f5f6f8;
@@ -36,7 +36,7 @@
     }
 
     .container {
-      max-width: 1120px;
+      max-width: 1140px;
       margin: 0 auto;
     }
 
@@ -104,35 +104,41 @@
       pointer-events: none;
     }
 
-    /* 视图切换与世代筛选栏 */
+    /* 视图、品牌与世代筛选栏 */
     .filter-toolbar {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 10px;
       background: #ffffff;
-      padding: 12px 18px;
+      padding: 14px 18px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-light);
       box-shadow: var(--shadow-card);
       margin-bottom: 18px;
     }
 
-    .filter-left {
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-group {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .tab-btn {
       border: 1px solid #e5e7eb;
       background: #f9fafb;
       color: #4b5563;
-      padding: 6px 13px;
+      padding: 5px 12px;
       border-radius: var(--radius-pill);
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.18s ease;
@@ -149,6 +155,18 @@
       border-color: #111827;
     }
 
+    .tab-btn.brand-nv.active {
+      background: #16a34a;
+      border-color: #16a34a;
+      color: #ffffff;
+    }
+
+    .tab-btn.brand-amd.active {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: #ffffff;
+    }
+
     .tab-btn.series-btn.active {
       background: #10b981;
       border-color: #10b981;
@@ -157,21 +175,21 @@
 
     .divider-v {
       width: 1px;
-      height: 18px;
+      height: 16px;
       background: #e5e7eb;
-      margin: 0 4px;
+      margin: 0 3px;
     }
 
     .search-box {
       position: relative;
-      min-width: 220px;
+      min-width: 230px;
       flex: 1;
-      max-width: 300px;
+      max-width: 310px;
     }
 
     .search-box input {
       width: 100%;
-      padding: 7px 14px 7px 32px;
+      padding: 6px 14px 6px 32px;
       border-radius: var(--radius-pill);
       border: 1px solid #e5e7eb;
       font-size: 13px;
@@ -204,7 +222,7 @@
       border: 1px solid #eef0f3;
       padding: 26px 24px 22px;
       display: grid;
-      grid-template-columns: 1fr 220px;
+      grid-template-columns: 1fr 225px;
       gap: 24px;
       margin-bottom: 18px;
     }
@@ -225,7 +243,7 @@
     .chart-header-spacer {
       height: 44px;
       display: grid;
-      grid-template-columns: 155px 1fr 48px;
+      grid-template-columns: 175px 1fr 50px;
       align-items: end;
       padding-bottom: 6px;
     }
@@ -273,8 +291,8 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      left: 155px;
-      right: 48px;
+      left: 175px;
+      right: 50px;
       pointer-events: none;
       z-index: 1;
     }
@@ -297,7 +315,7 @@
 
     .gpu-row {
       display: grid;
-      grid-template-columns: 155px 1fr 48px;
+      grid-template-columns: 175px 1fr 50px;
       align-items: center;
       padding: 8px 6px;
       border-radius: 10px;
@@ -321,14 +339,24 @@
     }
 
     .gpu-name {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: #1f2937;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       flex-wrap: wrap;
     }
+
+    .brand-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .brand-dot.nv { background: #22c55e; }
+    .brand-dot.amd { background: #ef4444; }
 
     .gpu-badge {
       font-size: 10px;
@@ -343,6 +371,7 @@
       font-size: 11px;
       color: #9ca3af;
       margin-top: 1px;
+      padding-left: 11px;
     }
 
     .bar-track {
@@ -371,7 +400,7 @@
     /* X轴刻度 */
     .x-axis-wrap {
       display: grid;
-      grid-template-columns: 155px 1fr 48px;
+      grid-template-columns: 175px 1fr 50px;
       margin-top: 8px;
     }
 
@@ -498,10 +527,10 @@
         grid-template-columns: 1fr;
       }
       .gpu-row, .chart-header-spacer, .x-axis-wrap {
-        grid-template-columns: 130px 1fr 44px;
+        grid-template-columns: 145px 1fr 44px;
       }
       .ref-lines-layer {
-        left: 130px;
+        left: 145px;
         right: 44px;
       }
     }
@@ -580,21 +609,35 @@
       </div>
     </header>
 
-    <!-- 视图与世代筛选栏 -->
+    <!-- 视图、品牌与世代筛选栏 -->
     <div class="filter-toolbar">
-      <div class="filter-left">
-        <button class="tab-btn active" data-view="classic">经典12款对比</button>
-        <button class="tab-btn" data-view="all">全系天梯 (含20/30/40/50系)</button>
-        <div class="divider-v"></div>
-        <button class="tab-btn series-btn active" data-series="ALL">全部世代</button>
-        <button class="tab-btn series-btn" data-series="50">50系</button>
-        <button class="tab-btn series-btn" data-series="40">40系</button>
-        <button class="tab-btn series-btn" data-series="30">30系</button>
-        <button class="tab-btn series-btn" data-series="20">20系</button>
-        <button class="tab-btn series-btn" data-series="16">16系</button>
+      <div class="filter-row">
+        <div class="filter-group">
+          <button class="tab-btn active" data-view="classic">经典12款对比</button>
+          <button class="tab-btn" data-view="all">N卡+A卡全系天梯</button>
+          <div class="divider-v"></div>
+          <button class="tab-btn brand-btn active" data-brand="ALL">全部品牌</button>
+          <button class="tab-btn brand-btn brand-nv" data-brand="NVIDIA">NVIDIA (绿点)</button>
+          <button class="tab-btn brand-btn brand-amd" data-brand="AMD">AMD (红点)</button>
+        </div>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="搜索显卡，如 9070 XT / 4070S / 6750..." />
+        </div>
       </div>
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="搜索显卡型号，如 2080 Ti / 4070S..." />
+
+      <div class="filter-row">
+        <div class="filter-group">
+          <button class="tab-btn series-btn active" data-series="ALL">全部世代</button>
+          <button class="tab-btn series-btn" data-series="NV50">RTX 50系</button>
+          <button class="tab-btn series-btn" data-series="NV40">RTX 40系</button>
+          <button class="tab-btn series-btn" data-series="NV30">RTX 30系</button>
+          <button class="tab-btn series-btn" data-series="NV20">RTX 20系</button>
+          <button class="tab-btn series-btn" data-series="NV16">GTX 16系</button>
+          <div class="divider-v"></div>
+          <button class="tab-btn series-btn" data-series="AMD9000">RX 9000系</button>
+          <button class="tab-btn series-btn" data-series="AMD7000">RX 7000系</button>
+          <button class="tab-btn series-btn" data-series="AMD6000">RX 6000系</button>
+        </div>
       </div>
     </div>
 
@@ -641,7 +684,7 @@
             <span class="diag-title" id="diagName">RTX 4070 SUPER</span>
             <button class="diag-close" id="diagClose" title="关闭诊断">✕</button>
           </div>
-          <div class="diag-fps" id="diagFps">86 FPS</div>
+          <div class="diag-fps" id="diagFps">103 FPS</div>
           <div class="diag-text" id="diagText"></div>
         </div>
 
@@ -700,57 +743,83 @@
   </div>
 
   <script>
-    // 显卡数据库（含原图12款经典卡 + 50/40/30/20系完整桌面与笔记本型号）
+    // 完整显卡数据库（NVIDIA RTX 50/40/30/20/16系 + AMD RX 9000/7000/6000系）
     // base1080: 1080p 低~中画质 + 考虑DLSS/FSR 下的基准预估帧率
     const GPU_DATA = [
-      // 50系
-      { id: "5090", name: "RTX 5090（桌面）", sub: "32GB GDDR7", vram: 32, series: "50", base1080: 158, hasDLSS: true, hasFG: true, classic: false },
-      { id: "5080", name: "RTX 5080（桌面）", sub: "16GB GDDR7", vram: 16, series: "50", base1080: 132, hasDLSS: true, hasFG: true, classic: false },
-      { id: "5070ti", name: "RTX 5070 Ti（桌面）", sub: "16GB GDDR7", vram: 16, series: "50", base1080: 116, hasDLSS: true, hasFG: true, classic: false },
-      { id: "5070", name: "RTX 5070（桌面）", sub: "12GB GDDR7", vram: 12, series: "50", base1080: 102, hasDLSS: true, hasFG: true, classic: false },
-      { id: "5060ti16", name: "RTX 5060 Ti（桌面）", sub: "16GB GDDR7", vram: 16, series: "50", base1080: 91, hasDLSS: true, hasFG: true, classic: false },
-      { id: "5060ti8", name: "RTX 5060 Ti（桌面）", sub: "8GB GDDR7", vram: 8, series: "50", base1080: 88, hasDLSS: true, hasFG: true, classic: false },
-      { id: "5060d", name: "RTX 5060（桌面）", sub: "8GB GDDR7", vram: 8, series: "50", base1080: 78, hasDLSS: true, hasFG: true, classic: true },
-      { id: "5060m", name: "RTX 5060（笔记本）", sub: "8GB GDDR7", vram: 8, series: "50", base1080: 68, hasDLSS: true, hasFG: true, classic: true },
-      { id: "5050d", name: "RTX 5050（桌面）", sub: "8GB GDDR6", vram: 8, series: "50", base1080: 54, hasDLSS: true, hasFG: true, classic: true },
-      { id: "5050m", name: "RTX 5050（笔记本）", sub: "8GB GDDR6", vram: 8, series: "50", base1080: 43, hasDLSS: true, hasFG: true, classic: true },
+      // ================= NVIDIA 50系 =================
+      { id: "5090", brand: "NVIDIA", name: "RTX 5090（桌面）", sub: "32GB GDDR7", vram: 32, series: "NV50", base1080: 158, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "5080", brand: "NVIDIA", name: "RTX 5080（桌面）", sub: "16GB GDDR7", vram: 16, series: "NV50", base1080: 132, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "5070ti", brand: "NVIDIA", name: "RTX 5070 Ti（桌面）", sub: "16GB GDDR7", vram: 16, series: "NV50", base1080: 116, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "5070", brand: "NVIDIA", name: "RTX 5070（桌面）", sub: "12GB GDDR7", vram: 12, series: "NV50", base1080: 102, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "5060ti16", brand: "NVIDIA", name: "RTX 5060 Ti 16G（桌面）", sub: "16GB GDDR7", vram: 16, series: "NV50", base1080: 91, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "5060ti8", brand: "NVIDIA", name: "RTX 5060 Ti 8G（桌面）", sub: "8GB GDDR7", vram: 8, series: "NV50", base1080: 88, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "5060d", brand: "NVIDIA", name: "RTX 5060（桌面）", sub: "8GB GDDR7", vram: 8, series: "NV50", base1080: 78, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: true },
+      { id: "5060m", brand: "NVIDIA", name: "RTX 5060（笔记本）", sub: "8GB GDDR7", vram: 8, series: "NV50", base1080: 68, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: true },
+      { id: "5050d", brand: "NVIDIA", name: "RTX 5050（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV50", base1080: 54, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: true },
+      { id: "5050m", brand: "NVIDIA", name: "RTX 5050（笔记本）", sub: "8GB GDDR6", vram: 8, series: "NV50", base1080: 43, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: true },
 
-      // 40系
-      { id: "4090", name: "RTX 4090（桌面）", sub: "24GB GDDR6X", vram: 24, series: "40", base1080: 142, hasDLSS: true, hasFG: true, classic: false },
-      { id: "4080s", name: "RTX 4080 SUPER（桌面）", sub: "16GB GDDR6X", vram: 16, series: "40", base1080: 122, hasDLSS: true, hasFG: true, classic: false },
-      { id: "4070tis", name: "RTX 4070 Ti SUPER（桌面）", sub: "16GB GDDR6X", vram: 16, series: "40", base1080: 112, hasDLSS: true, hasFG: true, classic: false },
-      { id: "4070s", name: "RTX 4070 SUPER（桌面）", sub: "12GB GDDR6X", vram: 12, series: "40", base1080: 103, hasDLSS: true, hasFG: true, classic: false, tag: "主力甜品" },
-      { id: "4070", name: "RTX 4070（桌面）", sub: "12GB GDDR6X", vram: 12, series: "40", base1080: 92, hasDLSS: true, hasFG: true, classic: false },
-      { id: "4060ti16", name: "RTX 4060 Ti（桌面）", sub: "16GB GDDR6", vram: 16, series: "40", base1080: 76, hasDLSS: true, hasFG: true, classic: false },
-      { id: "4060ti8", name: "RTX 4060 Ti（桌面）", sub: "8GB GDDR6", vram: 8, series: "40", base1080: 74, hasDLSS: true, hasFG: true, classic: false },
-      { id: "4060d", name: "RTX 4060（桌面）", sub: "8GB GDDR6", vram: 8, series: "40", base1080: 65, hasDLSS: true, hasFG: true, classic: true },
-      { id: "4060m", name: "RTX 4060（笔记本）", sub: "8GB GDDR6", vram: 8, series: "40", base1080: 58, hasDLSS: true, hasFG: true, classic: true },
+      // ================= NVIDIA 40系 =================
+      { id: "4090", brand: "NVIDIA", name: "RTX 4090（桌面）", sub: "24GB GDDR6X", vram: 24, series: "NV40", base1080: 142, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "4080s", brand: "NVIDIA", name: "RTX 4080 SUPER（桌面）", sub: "16GB GDDR6X", vram: 16, series: "NV40", base1080: 122, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "4070tis", brand: "NVIDIA", name: "RTX 4070 Ti SUPER（桌面）", sub: "16GB GDDR6X", vram: 16, series: "NV40", base1080: 112, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "4070s", brand: "NVIDIA", name: "RTX 4070 SUPER（桌面）", sub: "12GB GDDR6X", vram: 12, series: "NV40", base1080: 103, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false, tag: "主力甜品" },
+      { id: "4070", brand: "NVIDIA", name: "RTX 4070（桌面）", sub: "12GB GDDR6X", vram: 12, series: "NV40", base1080: 92, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "4060ti16", brand: "NVIDIA", name: "RTX 4060 Ti 16G（桌面）", sub: "16GB GDDR6", vram: 16, series: "NV40", base1080: 76, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "4060ti8", brand: "NVIDIA", name: "RTX 4060 Ti 8G（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV40", base1080: 74, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: false },
+      { id: "4060d", brand: "NVIDIA", name: "RTX 4060（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV40", base1080: 65, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: true },
+      { id: "4060m", brand: "NVIDIA", name: "RTX 4060（笔记本）", sub: "8GB GDDR6", vram: 8, series: "NV40", base1080: 58, hasUpscale: true, hasHWFG: true, rtPenalty: 1.0, classic: true },
 
-      // 30系
-      { id: "3080ti", name: "RTX 3080 Ti（桌面）", sub: "12GB GDDR6X", vram: 12, series: "30", base1080: 94, hasDLSS: true, hasFG: false, classic: false },
-      { id: "3080", name: "RTX 3080（桌面）", sub: "10GB GDDR6X", vram: 10, series: "30", base1080: 86, hasDLSS: true, hasFG: false, classic: false },
-      { id: "3070ti", name: "RTX 3070 Ti（桌面）", sub: "8GB GDDR6X", vram: 8, series: "30", base1080: 74, hasDLSS: true, hasFG: false, classic: false },
-      { id: "3070", name: "RTX 3070（桌面）", sub: "8GB GDDR6", vram: 8, series: "30", base1080: 69, hasDLSS: true, hasFG: false, classic: false },
-      { id: "3060ti", name: "RTX 3060 Ti（桌面）", sub: "8GB GDDR6", vram: 8, series: "30", base1080: 61, hasDLSS: true, hasFG: false, classic: false },
-      { id: "3060d", name: "RTX 3060（桌面）", sub: "12GB GDDR6", vram: 12, series: "30", base1080: 51, hasDLSS: true, hasFG: false, classic: true },
-      { id: "3060m", name: "RTX 3060（笔记本）", sub: "6GB GDDR6", vram: 6, series: "30", base1080: 33, hasDLSS: true, hasFG: false, classic: true },
-      { id: "3050d", name: "RTX 3050（桌面）", sub: "8GB GDDR6", vram: 8, series: "30", base1080: 31, hasDLSS: true, hasFG: false, classic: true },
-      { id: "3050m", name: "RTX 3050（笔记本）", sub: "4GB GDDR6", vram: 4, series: "30", base1080: 22, hasDLSS: true, hasFG: false, classic: true },
+      // ================= NVIDIA 30系 =================
+      { id: "3080ti", brand: "NVIDIA", name: "RTX 3080 Ti（桌面）", sub: "12GB GDDR6X", vram: 12, series: "NV30", base1080: 94, hasUpscale: true, hasHWFG: false, rtPenalty: 0.96, classic: false },
+      { id: "3080", brand: "NVIDIA", name: "RTX 3080（桌面）", sub: "10GB GDDR6X", vram: 10, series: "NV30", base1080: 86, hasUpscale: true, hasHWFG: false, rtPenalty: 0.96, classic: false },
+      { id: "3070ti", brand: "NVIDIA", name: "RTX 3070 Ti（桌面）", sub: "8GB GDDR6X", vram: 8, series: "NV30", base1080: 74, hasUpscale: true, hasHWFG: false, rtPenalty: 0.95, classic: false },
+      { id: "3070", brand: "NVIDIA", name: "RTX 3070（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV30", base1080: 69, hasUpscale: true, hasHWFG: false, rtPenalty: 0.95, classic: false },
+      { id: "3060ti", brand: "NVIDIA", name: "RTX 3060 Ti（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV30", base1080: 61, hasUpscale: true, hasHWFG: false, rtPenalty: 0.95, classic: false },
+      { id: "3060d", brand: "NVIDIA", name: "RTX 3060（桌面）", sub: "12GB GDDR6", vram: 12, series: "NV30", base1080: 51, hasUpscale: true, hasHWFG: false, rtPenalty: 0.94, classic: true },
+      { id: "3060m", brand: "NVIDIA", name: "RTX 3060（笔记本）", sub: "6GB GDDR6", vram: 6, series: "NV30", base1080: 33, hasUpscale: true, hasHWFG: false, rtPenalty: 0.92, classic: true },
+      { id: "3050d", brand: "NVIDIA", name: "RTX 3050（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV30", base1080: 31, hasUpscale: true, hasHWFG: false, rtPenalty: 0.90, classic: true },
+      { id: "3050m", brand: "NVIDIA", name: "RTX 3050（笔记本）", sub: "4GB GDDR6", vram: 4, series: "NV30", base1080: 22, hasUpscale: true, hasHWFG: false, rtPenalty: 0.88, classic: true },
 
-      // 20系（新增完整序列）
-      { id: "2080ti", name: "RTX 2080 Ti（桌面）", sub: "11GB GDDR6", vram: 11, series: "20", base1080: 72, hasDLSS: true, hasFG: false, classic: false },
-      { id: "2080s", name: "RTX 2080 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 62, hasDLSS: true, hasFG: false, classic: false },
-      { id: "2080m", name: "RTX 2080（笔记本）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 53, hasDLSS: true, hasFG: false, classic: false },
-      { id: "2070s", name: "RTX 2070 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 55, hasDLSS: true, hasFG: false, classic: false },
-      { id: "2070m", name: "RTX 2070（笔记本）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 45, hasDLSS: true, hasFG: false, classic: false },
-      { id: "2060s", name: "RTX 2060 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "20", base1080: 48, hasDLSS: true, hasFG: false, classic: false },
-      { id: "2060d", name: "RTX 2060（桌面）", sub: "6GB GDDR6", vram: 6, series: "20", base1080: 41, hasDLSS: true, hasFG: false, classic: false },
-      { id: "2060m", name: "RTX 2060（笔记本）", sub: "6GB GDDR6", vram: 6, series: "20", base1080: 34, hasDLSS: true, hasFG: false, classic: false },
+      // ================= NVIDIA 20系 =================
+      { id: "2080ti", brand: "NVIDIA", name: "RTX 2080 Ti（桌面）", sub: "11GB GDDR6", vram: 11, series: "NV20", base1080: 72, hasUpscale: true, hasHWFG: false, rtPenalty: 0.92, classic: false },
+      { id: "2080s", brand: "NVIDIA", name: "RTX 2080 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV20", base1080: 62, hasUpscale: true, hasHWFG: false, rtPenalty: 0.90, classic: false },
+      { id: "2080m", brand: "NVIDIA", name: "RTX 2080（笔记本）", sub: "8GB GDDR6", vram: 8, series: "NV20", base1080: 53, hasUpscale: true, hasHWFG: false, rtPenalty: 0.90, classic: false },
+      { id: "2070s", brand: "NVIDIA", name: "RTX 2070 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV20", base1080: 55, hasUpscale: true, hasHWFG: false, rtPenalty: 0.90, classic: false },
+      { id: "2070m", brand: "NVIDIA", name: "RTX 2070（笔记本）", sub: "8GB GDDR6", vram: 8, series: "NV20", base1080: 45, hasUpscale: true, hasHWFG: false, rtPenalty: 0.88, classic: false },
+      { id: "2060s", brand: "NVIDIA", name: "RTX 2060 SUPER（桌面）", sub: "8GB GDDR6", vram: 8, series: "NV20", base1080: 48, hasUpscale: true, hasHWFG: false, rtPenalty: 0.88, classic: false },
+      { id: "2060d", brand: "NVIDIA", name: "RTX 2060（桌面）", sub: "6GB GDDR6", vram: 6, series: "NV20", base1080: 41, hasUpscale: true, hasHWFG: false, rtPenalty: 0.86, classic: false },
+      { id: "2060m", brand: "NVIDIA", name: "RTX 2060（笔记本）", sub: "6GB GDDR6", vram: 6, series: "NV20", base1080: 34, hasUpscale: true, hasHWFG: false, rtPenalty: 0.85, classic: false },
 
-      // 16系
-      { id: "1660s", name: "GTX 1660 SUPER（桌面）", sub: "6GB GDDR6", vram: 6, series: "16", base1080: 32, hasDLSS: false, hasFG: false, classic: false },
-      { id: "1650d", name: "GTX 1650（桌面）", sub: "4GB GDDR5", vram: 4, series: "16", base1080: 18, hasDLSS: false, hasFG: false, classic: true },
-      { id: "1650m", name: "GTX 1650（笔记本）", sub: "4GB GDDR5", vram: 4, series: "16", base1080: 15, hasDLSS: false, hasFG: false, classic: true }
+      // ================= NVIDIA 16系 =================
+      { id: "1660s", brand: "NVIDIA", name: "GTX 1660 SUPER（桌面）", sub: "6GB GDDR6", vram: 6, series: "NV16", base1080: 32, hasUpscale: false, hasHWFG: false, rtPenalty: 0.72, classic: false },
+      { id: "1650d", brand: "NVIDIA", name: "GTX 1650（桌面）", sub: "4GB GDDR5", vram: 4, series: "NV16", base1080: 18, hasUpscale: false, hasHWFG: false, rtPenalty: 0.70, classic: true },
+      { id: "1650m", brand: "NVIDIA", name: "GTX 1650（笔记本）", sub: "4GB GDDR5", vram: 4, series: "NV16", base1080: 15, hasUpscale: false, hasHWFG: false, rtPenalty: 0.70, classic: true },
+
+      // ================= AMD RX 9000系 (RDNA 4 / FSR 4) =================
+      { id: "9070xt", brand: "AMD", name: "RX 9070 XT（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD9000", base1080: 118, hasUpscale: true, hasHWFG: true, rtPenalty: 0.94, classic: false, tag: "A卡旗舰" },
+      { id: "9070", brand: "AMD", name: "RX 9070（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD9000", base1080: 104, hasUpscale: true, hasHWFG: true, rtPenalty: 0.94, classic: false },
+      { id: "9060xt16", brand: "AMD", name: "RX 9060 XT 16G（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD9000", base1080: 86, hasUpscale: true, hasHWFG: true, rtPenalty: 0.92, classic: false },
+      { id: "9060xt8", brand: "AMD", name: "RX 9060 XT 8G（桌面）", sub: "8GB GDDR6", vram: 8, series: "AMD9000", base1080: 83, hasUpscale: true, hasHWFG: true, rtPenalty: 0.92, classic: false },
+
+      // ================= AMD RX 7000系 (RDNA 3) =================
+      { id: "7900xtx", brand: "AMD", name: "RX 7900 XTX（桌面）", sub: "24GB GDDR6", vram: 24, series: "AMD7000", base1080: 126, hasUpscale: true, hasHWFG: false, rtPenalty: 0.85, classic: false },
+      { id: "7900xt", brand: "AMD", name: "RX 7900 XT（桌面）", sub: "20GB GDDR6", vram: 20, series: "AMD7000", base1080: 113, hasUpscale: true, hasHWFG: false, rtPenalty: 0.85, classic: false },
+      { id: "7900gre", brand: "AMD", name: "RX 7900 GRE（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD7000", base1080: 99, hasUpscale: true, hasHWFG: false, rtPenalty: 0.84, classic: false },
+      { id: "7800xt", brand: "AMD", name: "RX 7800 XT（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD7000", base1080: 93, hasUpscale: true, hasHWFG: false, rtPenalty: 0.84, classic: false },
+      { id: "7700xt", brand: "AMD", name: "RX 7700 XT（桌面）", sub: "12GB GDDR6", vram: 12, series: "AMD7000", base1080: 81, hasUpscale: true, hasHWFG: false, rtPenalty: 0.84, classic: false },
+      { id: "7600xt", brand: "AMD", name: "RX 7600 XT（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD7000", base1080: 63, hasUpscale: true, hasHWFG: false, rtPenalty: 0.82, classic: false },
+      { id: "7600", brand: "AMD", name: "RX 7600（桌面）", sub: "8GB GDDR6", vram: 8, series: "AMD7000", base1080: 59, hasUpscale: true, hasHWFG: false, rtPenalty: 0.82, classic: false },
+      { id: "7600mxt", brand: "AMD", name: "RX 7600M XT（笔记本）", sub: "8GB GDDR6", vram: 8, series: "AMD7000", base1080: 52, hasUpscale: true, hasHWFG: false, rtPenalty: 0.82, classic: false },
+
+      // ================= AMD RX 6000系 (RDNA 2) =================
+      { id: "6950xt", brand: "AMD", name: "RX 6950 XT（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD6000", base1080: 96, hasUpscale: true, hasHWFG: false, rtPenalty: 0.78, classic: false },
+      { id: "6800xt", brand: "AMD", name: "RX 6800 XT（桌面）", sub: "16GB GDDR6", vram: 16, series: "AMD6000", base1080: 87, hasUpscale: true, hasHWFG: false, rtPenalty: 0.78, classic: false },
+      { id: "6750gre12", brand: "AMD", name: "RX 6750 GRE 12G（桌面）", sub: "12GB GDDR6", vram: 12, series: "AMD6000", base1080: 68, hasUpscale: true, hasHWFG: false, rtPenalty: 0.76, classic: false },
+      { id: "6750gre10", brand: "AMD", name: "RX 6750 GRE 10G（桌面）", sub: "10GB GDDR6", vram: 10, series: "AMD6000", base1080: 62, hasUpscale: true, hasHWFG: false, rtPenalty: 0.76, classic: false },
+      { id: "6700xt", brand: "AMD", name: "RX 6700 XT（桌面）", sub: "12GB GDDR6", vram: 12, series: "AMD6000", base1080: 66, hasUpscale: true, hasHWFG: false, rtPenalty: 0.76, classic: false },
+      { id: "6650xt", brand: "AMD", name: "RX 6650 XT（桌面）", sub: "8GB GDDR6", vram: 8, series: "AMD6000", base1080: 54, hasUpscale: true, hasHWFG: false, rtPenalty: 0.75, classic: false },
+      { id: "6600", brand: "AMD", name: "RX 6600（桌面）", sub: "8GB GDDR6", vram: 8, series: "AMD6000", base1080: 44, hasUpscale: true, hasHWFG: false, rtPenalty: 0.75, classic: false },
+      { id: "6600m", brand: "AMD", name: "RX 6600M（笔记本）", sub: "8GB GDDR6", vram: 8, series: "AMD6000", base1080: 38, hasUpscale: true, hasHWFG: false, rtPenalty: 0.75, classic: false }
     ];
 
     const state = {
@@ -758,16 +827,17 @@
       preset: "low_med",
       upscale: "quality",
       view: "classic",
+      brand: "ALL",
       series: "ALL",
       search: "",
       selectedId: null
     };
 
-    // 动态帧率估算模型（含分辨率、画质预设、超分/帧生成与显存爆仓惩罚）
+    // 动态帧率估算模型（含分辨率、画质、光追架构差异、超分/帧生成与显存爆仓惩罚）
     function calcFps(gpu) {
       let fps = gpu.base1080;
 
-      // 1. 分辨率系数
+      // 1. 分辨率系数（AMD高显存/高带宽旗舰在2K/4K衰减略小）
       const resFactor = {
         "1080p": 1.0,
         "2k": 0.76,
@@ -776,20 +846,19 @@
       }[state.res];
       fps *= resFactor;
 
-      // 2. 画质预设系数
-      const presetFactor = {
-        "low_med": 1.0,
-        "high": 0.78,
-        "ultra_rt": 0.56
-      }[state.preset];
-      fps *= presetFactor;
+      // 2. 画质预设系数（极高画质+光追对老架构和RDNA2/3有额外光追负载惩罚）
+      if (state.preset === "high") {
+        fps *= 0.78;
+      } else if (state.preset === "ultra_rt") {
+        fps *= 0.56 * (gpu.rtPenalty || 1.0);
+      }
 
       // 3. 超分与帧生成系数（base1080 默认已包含 DLSS/FSR 质量档收益）
       if (state.upscale === "native") {
-        fps *= gpu.hasDLSS ? 0.74 : 0.82;
+        fps *= gpu.hasUpscale ? 0.74 : 0.82;
       } else if (state.upscale === "fg") {
-        // 40/50系原生DLSS帧生成或20/30系FSR3帧生成
-        fps *= gpu.hasFG ? 1.42 : 1.28;
+        // RTX 40/50系 & RX 9000系硬件/AI帧生成加成更高，老卡走FSR 3帧生成
+        fps *= gpu.hasHWFG ? 1.42 : 1.28;
       }
 
       // 4. 显存需求与爆显存衰减惩罚
@@ -835,25 +904,32 @@
         "uwqhd": "3440×1440 带鱼屏",
         "4k": "4K"
       };
+      const upscaleTech = gpu.brand === "AMD" ? "FSR" : "DLSS";
+
       let vramNote = "";
       if (gpu.vram <= 6 && (state.res !== "1080p" || state.preset !== "low_med")) {
-        vramNote = `⚠️ 当前 ${gpu.vram}GB 显存已触发明显容量瓶颈，建议将纹理质量调至“低”并保持在 1080p 分辨率。`;
+        vramNote = `⚠️ 当前 ${gpu.vram}GB 显存已触发容量瓶颈，建议将纹理调至“低”并维持 1080p 分辨率。`;
       } else if (gpu.vram === 8 && (state.res === "uwqhd" || state.res === "4k")) {
-        vramNote = `⚠️ 8GB 显存在 ${resMap[state.res]} 下较为吃紧，建议开启 DLSS/FSR 平衡档并适当降低阴影与人群密度。`;
+        vramNote = `⚠️ 8GB 显存在 ${resMap[state.res]} 下较为吃紧，建议开启 ${upscaleTech} 平衡档并降低阴影与人群密度。`;
       } else {
-        vramNote = `✅ ${gpu.vram}GB 显存容量充足，在当前设置下不容易出现贴图加载卡顿。`;
+        vramNote = `✅ ${gpu.vram}GB 大显存容量充裕，在当前设置下极少出现贴图加载卡顿。`;
+      }
+
+      let rtTip = "";
+      if (gpu.brand === "AMD" && (gpu.series === "AMD6000" || gpu.series === "AMD7000") && state.preset === "ultra_rt") {
+        rtTip = `<br><br>💡 <b>A卡调优提示：</b>RDNA 2/3 架构在重度光追下开销较大，关闭光追仅开“高画质”通常可暴涨 35%～45% 帧率。`;
       }
 
       let perfNote = "";
       if (fps >= 60) {
         perfNote = `预计平均帧率可达 <b>${fps} FPS</b>，已跨过 PC 60 帧流畅线，键鼠操作跟手度极佳。`;
       } else if (fps >= 30) {
-        perfNote = `预计平均帧率约 <b>${fps} FPS</b>，高于主机 30 帧基准线，可完整通关剧情；若想冲击 60 帧建议开启更高档位 DLSS/FSR。`;
+        perfNote = `预计平均帧率约 <b>${fps} FPS</b>，高于主机 30 帧基准线，可流畅通关；开启 ${upscaleTech} 帧生成可进一步冲击 60 帧。`;
       } else {
-        perfNote = `预计平均帧率仅 <b>${fps} FPS</b>，低于主机基准线，建议切回 1080p 并使用低画质 + 性能模式超分。`;
+        perfNote = `预计平均帧率仅 <b>${fps} FPS</b>，低于主机基准线，建议切回 1080p 并使用低画质 + ${upscaleTech} 性能模式。`;
       }
 
-      return `${perfNote}<br><br>${vramNote}`;
+      return `${perfNote}<br><br>${vramNote}${rtTip}`;
     }
 
     function render() {
@@ -861,12 +937,15 @@
       let list = GPU_DATA.filter(g => {
         if (state.search.trim() !== "") {
           const kw = state.search.trim().toLowerCase();
-          return g.name.toLowerCase().includes(kw) || g.sub.toLowerCase().includes(kw);
+          return g.name.toLowerCase().includes(kw) || g.sub.toLowerCase().includes(kw) || g.brand.toLowerCase().includes(kw);
+        }
+        if (state.brand !== "ALL" && g.brand !== state.brand) {
+          return false;
         }
         if (state.series !== "ALL") {
           return g.series === state.series;
         }
-        if (state.view === "classic") {
+        if (state.view === "classic" && state.brand === "ALL") {
           return g.classic;
         }
         return true;
@@ -876,9 +955,18 @@
       const computed = list.map(g => ({ ...g, fps: calcFps(g) }))
                            .sort((a, b) => b.fps - a.fps);
 
-      // 动态计算 X 轴最大值（默认经典模式为 85，确保 30 和 60 刻度比例还原原图）
+      // 动态计算 X 轴最大值
       const maxFpsInList = computed.length ? Math.max(...computed.map(i => i.fps)) : 80;
-      const axisMax = (state.view === "classic" && state.series === "ALL" && state.res === "1080p" && state.preset === "low_med" && state.upscale === "quality" && !state.search)
+      const isDefaultClassic = (
+        state.view === "classic" &&
+        state.brand === "ALL" &&
+        state.series === "ALL" &&
+        state.res === "1080p" &&
+        state.preset === "low_med" &&
+        state.upscale === "quality" &&
+        !state.search
+      );
+      const axisMax = isDefaultClassic
         ? 85
         : Math.max(85, Math.ceil((maxFpsInList + 10) / 20) * 20);
 
@@ -907,7 +995,7 @@
       gpuListEl.innerHTML = "";
 
       if (computed.length === 0) {
-        gpuListEl.innerHTML = `<div style="padding:36px;text-align:center;color:#9ca3af;font-size:14px;">未找到匹配的显卡型号，请尝试清空搜索词或切换世代筛选。</div>`;
+        gpuListEl.innerHTML = `<div style="padding:36px;text-align:center;color:#9ca3af;font-size:14px;">未找到匹配的显卡型号，请尝试清空搜索词或切换品牌/世代筛选。</div>`;
         return;
       }
 
@@ -915,10 +1003,12 @@
         const row = document.createElement("div");
         row.className = "gpu-row" + (state.selectedId === item.id ? " selected" : "");
         const widthPct = Math.min(100, (item.fps / axisMax) * 100);
+        const dotClass = item.brand === "AMD" ? "amd" : "nv";
 
         row.innerHTML = `
           <div class="gpu-info">
             <div class="gpu-name">
+              <span class="brand-dot ${dotClass}" title="${item.brand}"></span>
               <span>${item.name}</span>
               ${item.tag ? `<span class="gpu-badge">${item.tag}</span>` : ""}
             </div>
@@ -975,7 +1065,27 @@
         btn.classList.add("active");
         state.view = btn.dataset.view;
         state.series = "ALL";
+        if (state.view === "classic") {
+          state.brand = "ALL";
+          document.querySelectorAll(".brand-btn").forEach(b => b.classList.toggle("active", b.dataset.brand === "ALL"));
+        }
         document.querySelectorAll(".series-btn").forEach(b => b.classList.toggle("active", b.dataset.series === "ALL"));
+        render();
+      });
+    });
+
+    // 绑定品牌筛选按钮
+    document.querySelectorAll(".brand-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".brand-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.brand = btn.dataset.brand;
+        state.series = "ALL";
+        document.querySelectorAll(".series-btn").forEach(b => b.classList.toggle("active", b.dataset.series === "ALL"));
+        if (state.brand !== "ALL") {
+          state.view = "all";
+          document.querySelectorAll(".tab-btn[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === "all"));
+        }
         render();
       });
     });
@@ -988,7 +1098,9 @@
         state.series = btn.dataset.series;
         if (state.series !== "ALL") {
           state.view = "all";
+          state.brand = "ALL";
           document.querySelectorAll(".tab-btn[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === "all"));
+          document.querySelectorAll(".brand-btn").forEach(b => b.classList.toggle("active", b.dataset.brand === "ALL"));
         }
         render();
       });
